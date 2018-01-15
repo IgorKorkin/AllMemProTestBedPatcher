@@ -16,9 +16,33 @@
 
 #include "disable_compatibility_window.h" // Disable Program Compatibility Assistant 
 
-#include "payload_stack_overflow.h"
+#include <iostream>
+using namespace std;
 
-#include "payload_use_after_free.h"
+
+namespace check_windows_support {
+
+	bool is_ok();
+
+	void set_minimal_os_info(OSVERSIONINFOEX & os_info);
+
+	void print_windows_info(const char* title, const OSVERSIONINFOEX & os_version);
+}
+
+namespace resource_functions {
+
+	typedef struct _RESOURCE
+	{
+		DWORD   data_sz;
+		LPVOID  data;
+	}RESOURCE, *PRESOURCE;
+
+	bool extract(RESOURCE & resourse, LPCTSTR lpName, LPCTSTR lpType);
+
+	bool set_tmp_file(LPTSTR lpTempFileName);
+
+	bool set_tmp_file_path(LPCTSTR lpPrefixString, LPTSTR lpTempFileName);
+}
 
 namespace testbed_for_exploitation{
 
@@ -29,20 +53,17 @@ namespace testbed_for_exploitation{
 			return activate_testbed();
 		}
 
-		/* Try ordinary memory access to local, global, and allocated variables */
-		bool run_basic_mem_access();
+		/*  */
+		bool hide_proc(ULONG64 procId);
 
-		/* Run stack overflow without any payload to calculate the required buffer size */
-		bool run_simple_stack_overflow(DWORD bufferSz);
+		/*  */
+		bool read_1byte(ULONG64 addr);
 
-		/* Run stack overflow with the payload to escalate process privileges */
-		bool run_stack_overflow_with_payload(DWORD targetPid);
+		/*  */
+		bool write_1byte(ULONG64 addr, char value);
 
-		/* Run a simple use-after-free exploit*/
-		bool run_use_after_free();
-
-		/* Run a use-after-free exploit with the payload to escalate process privileges */
-		bool run_use_after_free_with_payload(const DWORD targetPid);
+		/*  */
+		bool write_8bytes(ULONG64 addr, ULONG64 value);
 
 	private:
 		service_functions::ServiceManager service_manager;

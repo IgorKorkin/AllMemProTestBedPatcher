@@ -3,9 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbed_console", "testbed_console\testbed_console.vcxproj", "{EB20B816-E820-4CCE-85B0-9503D51D5A99}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbed_console_mem_patcher", "testbed_console_mem_patcher\testbed_console_mem_patcher.vcxproj", "{EB20B816-E820-4CCE-85B0-9503D51D5A99}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4C048BB2-7E8D-43BF-B29D-942461275023} = {4C048BB2-7E8D-43BF-B29D-942461275023}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbed_driver", "testbed_driver\testbed_driver.vcxproj", "{4C048BB2-7E8D-43BF-B29D-942461275023}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbed_driver_mem_patcher", "testbed_driver_mem_patcher\testbed_driver_mem_patcher.vcxproj", "{4C048BB2-7E8D-43BF-B29D-942461275023}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

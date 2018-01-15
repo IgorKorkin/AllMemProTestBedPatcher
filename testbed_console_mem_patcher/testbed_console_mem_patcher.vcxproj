@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EB20B816-E820-4CCE-85B0-9503D51D5A99}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>testbed_console</RootNamespace>
+    <RootNamespace>testbed_console_mem_patcher</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -147,22 +147,16 @@
   <ItemGroup>
     <ClCompile Include="disable_compatibility_window.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="payloads.cpp" />
-    <ClCompile Include="payload_stack_overflow.cpp" />
     <ClCompile Include="print_messages.cpp" />
     <ClCompile Include="service_functions.cpp" />
     <ClCompile Include="testbed.cpp" />
-    <ClCompile Include="payload_use_after_free.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="disable_compatibility_window.h" />
-    <ClInclude Include="payload_stack_overflow.h" />
-    <ClInclude Include="payloads.h" />
     <ClInclude Include="print_messages.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="service_functions.h" />
     <ClInclude Include="testbed.h" />
-    <ClInclude Include="payload_use_after_free.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="testbed_console.rc">
@@ -170,11 +164,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="payloads_asm.asm">
-      <FileType>Document</FileType>
-    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

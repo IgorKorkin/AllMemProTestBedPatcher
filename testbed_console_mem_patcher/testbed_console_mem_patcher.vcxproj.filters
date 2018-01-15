@@ -24,19 +24,10 @@
     <ClCompile Include="print_messages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="payload_stack_overflow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="disable_compatibility_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="testbed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="payload_use_after_free.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="payloads.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,19 +41,10 @@
     <ClInclude Include="print_messages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="payload_stack_overflow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="disable_compatibility_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="testbed.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="payload_use_after_free.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="payloads.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -70,10 +52,5 @@
     <ResourceCompile Include="testbed_console.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="payloads_asm.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
   </ItemGroup>
 </Project>

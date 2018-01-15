@@ -1,45 +1,35 @@
 #ifndef __TESTBED_SHARED_H__
 #define __TESTBED_SHARED_H__
 
-#define		__TESTBED__					L"TestBedDriver"
-#define		TESTBED_SYS_FILE				__TESTBED__ \
+#define		__TESTBEDMEMPATCHER__					L"TestBedMemPatcherDriver"
+#define		TESTBEDMP_SYS_FILE				__TESTBEDMEMPATCHER__ \
 											L".sys"
 // There are symbols for driver
-#define		TESTBED_DEVICENAME_DRV	L"\\Device\\dev" __TESTBED__
-#define		TESTBED_LINKNAME_DRV 	L"\\DosDevices\\" __TESTBED__
+#define		TESTBEDMP_DEVICENAME_DRV	L"\\Device\\dev" __TESTBEDMEMPATCHER__
+#define		TESTBEDMP_LINKNAME_DRV 	L"\\DosDevices\\" __TESTBEDMEMPATCHER__
 
 // There are symbols for command line app
-#define		TESTBED_LINKNAME_APP 	L"\\\\.\\" __TESTBED__
-#define		TESTBED_SERVNAME_APP	__TESTBED__
-
+#define		TESTBEDMP_LINKNAME_APP 	L"\\\\.\\" __TESTBEDMEMPATCHER__
+#define		TESTBEDMP_SERVNAME_APP	__TESTBEDMEMPATCHER__
 
 // Device type in user defined range
-#define TESTBED_DEVICE_IOCTL  0x8301
-#define TESTBED_BASIC_MEMORY_ACCESS			(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x800, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define TESTBEDMP_DEVICE_IOCTL  0x8302
 
-//////////////////////////////////////////////////////////////////////////
-#define BUFFER_SIZE 512
-#define TESTBED_SIMPLE_STACK_OVERFLOW		(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x810, METHOD_NEITHER, FILE_ANY_ACCESS)
-#define TESTBED_STACK_OVERFLOW_FROM_HEVD		(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x810+1, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define TESTBED_MEM_PATCHER_HIDE_PROC		(unsigned) CTL_CODE(TESTBEDMP_DEVICE_IOCTL, 0x840, METHOD_NEITHER, FILE_ANY_ACCESS)
 
-//////////////////////////////////////////////////////////////////////////
-namespace payload_use_after_free {
-	const int g_Objectsz = 0x54;
-	typedef struct _BUFFER_OBJECT {
-		char buffer[g_Objectsz];
-	} BUFFER_OBJECT, *PBUFFER_OBJECT;
+#define TESTBED_MEM_PATCHER_READ_1_BYTE		(unsigned) CTL_CODE(TESTBEDMP_DEVICE_IOCTL, 0x840+1, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define TESTBED_MEM_PATCHER_WRITE_1_BYTE	(unsigned) CTL_CODE(TESTBEDMP_DEVICE_IOCTL, 0x840+2, METHOD_NEITHER, FILE_ANY_ACCESS)
 
-	typedef void(*FunctionPointer)();
-	typedef struct _BUFFER_FUNC {
-		FunctionPointer callback_func; // ! it must be always in the first place
-		BUFFER_OBJECT object;
-	} BUFFER_FUNC, *PBUFFER_FUNC;
-}
+typedef struct _ADDR_BYTE {
+	ULONG64 addr;
+	char value;
+}ADDR_BYTE;
 
+#define TESTBED_MEM_PATCHER_WRITE_8_BYTES	(unsigned) CTL_CODE(TESTBEDMP_DEVICE_IOCTL, 0x840+3, METHOD_NEITHER, FILE_ANY_ACCESS)
 
-#define TESTBED_UAF_ALLOCATE_OBJECT	(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x820, METHOD_NEITHER, FILE_ANY_ACCESS)
-#define TESTBED_UAF_FREE_OBJECT		(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x820+1, METHOD_NEITHER, FILE_ANY_ACCESS)
-#define TESTBED_UAF_USE_OBJECT		(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x820+2, METHOD_NEITHER, FILE_ANY_ACCESS)
-#define TESTBED_UAF_ALLOCATE_FAKE	(unsigned) CTL_CODE(TESTBED_DEVICE_IOCTL, 0x820+3, METHOD_NEITHER, FILE_ANY_ACCESS)
+typedef struct _ADDR_8BYTES {
+	ULONG64 addr;
+	ULONG64 value;
+}ADDR_8BYTES;
 
 #endif // __TESTBED_SHARED_H__

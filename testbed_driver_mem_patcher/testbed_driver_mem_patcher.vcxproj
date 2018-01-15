@@ -28,8 +28,8 @@
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <RootNamespace>testbed_driver</RootNamespace>
-    <ProjectName>testbed_driver</ProjectName>
+    <RootNamespace>testbed_driver_mem_patcher</RootNamespace>
+    <ProjectName>testbed_driver_mem_patcher</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -66,8 +66,7 @@
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -109,6 +108,7 @@
       <WppKernelMode>true</WppKernelMode>
       <WarningLevel>Level4</WarningLevel>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -124,18 +124,16 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="basic_mem_access.cpp" />
-    <ClCompile Include="driver.cpp" />
-    <ClCompile Include="vulnerable_code.cpp" />
+    <ClCompile Include="driver_tbmp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asm.h" />
-    <ClInclude Include="basic_mem_access.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="driver.h" />
-    <ClInclude Include="vulnerable_code.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="code_asm.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

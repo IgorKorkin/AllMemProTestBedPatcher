@@ -7,7 +7,7 @@ Signature="$WINDOWS NT$"
 Class=Sample ; TODO: edit Class
 ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
 Provider=%ManufacturerName%
-CatalogFile=testbed_driver.cat
+CatalogFile=testbed_driver_mem_patcher.cat
 DriverVer= ; TODO: set DriverVer in stampinf property pages
 
 [DestinationDirs]
@@ -26,7 +26,7 @@ HKR,,Icon,,-5
 1 = %DiskName%,,,""
 
 [SourceDisksFiles]
-testbed_driver.sys  = 1,,
+testbed_driver_mem_patcher.sys  = 1,,
 
 ;*****************************************
 ; Install Section
@@ -36,17 +36,17 @@ testbed_driver.sys  = 1,,
 %ManufacturerName%=Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
-%testbed_driver.DeviceDesc%=testbed_driver_Device, Root\testbed_driver ; TODO: edit hw-id
+%testbed_driver.DeviceDesc%=testbed_driver_Device, Root\testbed_driver_mem_patcher ; TODO: edit hw-id
 
 [testbed_driver_Device.NT]
 CopyFiles=Drivers_Dir
 
 [Drivers_Dir]
-testbed_driver.sys
+testbed_driver_mem_patcher.sys
 
 ;-------------- Service installation
 [testbed_driver_Device.NT.Services]
-AddService = testbed_driver,%SPSVCINST_ASSOCSERVICE%, testbed_driver_Service_Inst
+AddService = testbed_driver_mem_patcher,%SPSVCINST_ASSOCSERVICE%, testbed_driver_Service_Inst
 
 ; -------------- testbed_driver driver install sections
 [testbed_driver_Service_Inst]
@@ -54,7 +54,7 @@ DisplayName    = %testbed_driver.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\testbed_driver.sys
+ServiceBinary  = %12%\testbed_driver_mem_patcher.sys
 
 ;
 ;--- testbed_driver_Device Coinstaller installation ------
@@ -77,7 +77,7 @@ WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
 
 [testbed_driver_Device.NT.Wdf]
-KmdfService =  testbed_driver, testbed_driver_wdfsect
+KmdfService =  testbed_driver_mem_patcher, testbed_driver_wdfsect
 [testbed_driver_wdfsect]
 KmdfLibraryVersion = $KMDFVERSION$
 

@@ -10,9 +10,6 @@
 
 #include "common.h"
 #include "..\shared\testbed_shared.h"
-#include "basic_mem_access.h"
-#include "vulnerable_code.h"
-
 
 extern "C" {
 ////////////////////////////////////////////////////////////////////////////////

